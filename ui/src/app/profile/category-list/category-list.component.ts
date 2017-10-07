@@ -1,7 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {RecipeCategory} from "../../shared/models/recipe/recipe-category";
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {RecipeCategoryService} from "../../shared/services/recipecategory.service";
-import {User} from "../../shared/models/user-model";
 
 @Component({
   selector: 'app-category-list',
@@ -10,12 +8,26 @@ import {User} from "../../shared/models/user-model";
 })
 export class CategoryListComponent implements OnInit {
 
+
   @Input() categories: any[];
+  @Output() subscribed: EventEmitter<any[]> = new EventEmitter<any[]>();
+  private subscribedCategories: any[] = [];
 
   constructor(private recipeCategoryService: RecipeCategoryService) {
   }
 
   ngOnInit() {
+  }
+
+  subscribe(index: number): void {
+    const cat = this.categories[index];
+    if (cat.followed) {
+      this.unSubscribeToCategory(cat.category.id);
+    } else {
+      this.subscribeToCategory(cat.category.id);
+      this.subscribedCategories.push(cat.category);
+      this.subscribed.emit(this.subscribedCategories);
+    }
   }
 
   private subscribeToCategory(id: string) {

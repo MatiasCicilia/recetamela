@@ -1,4 +1,4 @@
-import {Component, NgZone, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Params, Router} from "@angular/router";
 import {User} from "../shared/models/user-model";
 import {UserService} from "../shared/services/user.service";
@@ -14,6 +14,7 @@ import {RecipeCategoryService} from "../shared/services/recipecategory.service";
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
+
 
   private user: User;
   private loggedUser: User;
@@ -33,6 +34,7 @@ export class ProfileComponent implements OnInit {
     private recipeService: RecipeService,
     private recipeCategoryService: RecipeCategoryService,
     private router: Router) {
+
   }
 
   ngOnInit() {
@@ -118,5 +120,9 @@ export class ProfileComponent implements OnInit {
   private unSubscribeToCategory(id: string) {
     console.log(id + ": unSubscribed");
     this.recipeCategoryService.unSubscribeToCategory(id).then();
+  }
+
+  getCat(event) {
+    this.categories = event;
   }
 }

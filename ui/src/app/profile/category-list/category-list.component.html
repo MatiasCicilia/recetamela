@@ -1,7 +1,7 @@
 <div class="categories">
   <ul>
-    <ng-container *ngFor="let c of categories">
-      <li>
+    <ng-container *ngFor="let c of categories; let i = index">
+      <li (click)="subscribe(i)">
         <span *ngIf="!c.followed; else followed">➕</span>
         <ng-template #followed>➖</ng-template>
         {{c.category?.name}}

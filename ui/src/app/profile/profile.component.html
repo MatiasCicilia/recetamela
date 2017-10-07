@@ -68,7 +68,7 @@
               <div class="row">
                 <div *ngIf="resultCategories?.length == 0" style="margin-left: 4%" class="alert alert-success" role="alert">🎩🐇 Nada que mostrar por aquí...</div>
                 <div class="row">
-                  <app-category-list [categories]="resultCategories"></app-category-list>
+                  <app-category-list [categories]="resultCategories" (subscribed)="getCat($event)"></app-category-list>
                 </div>
               </div>
               <div class="row">
