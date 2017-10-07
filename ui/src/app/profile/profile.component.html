@@ -66,13 +66,21 @@
                 </div>
               </div>
               <div class="row">
-                <div *ngIf="resultCategories.length == 0" style="margin-left: 4%" class="alert alert-success" role="alert">🎩🐇 Nada que mostrar por aquí...</div>
-                <app-category-list [categories]="resultCategories"></app-category-list>
+                <div *ngIf="resultCategories?.length == 0" style="margin-left: 4%" class="alert alert-success" role="alert">🎩🐇 Nada que mostrar por aquí...</div>
+                <div class="row">
+                  <app-category-list [categories]="resultCategories"></app-category-list>
+                </div>
               </div>
               <div class="row">
                 <h3 style="margin-left: 3.5%">Categorías seguidas</h3>
                 <ng-container *ngIf="categories.length == 0">Todavía no sigue a ninguna categoría. </ng-container>
-                <app-category-list [categories]="categories"></app-category-list>
+                <ng-container>
+                  <ul>
+                    <li *ngFor="let c of categories">
+                      <button class="btn subscribe" (click)="unSubscribeToCategory(c.id)">➖{{c.name}}</button>
+                    </li>
+                  </ul>
+                </ng-container>
               </div>
             </div>
           </div>

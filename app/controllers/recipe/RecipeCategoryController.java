@@ -3,10 +3,12 @@ package controllers.recipe;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.SqlUpdate;
 import com.google.inject.Inject;
+import controllers.BaseController;
 import controllers.authentication.Authenticate;
 import models.recipe.RecipeCategory;
 import models.user.FreeUser;
 import models.user.PremiumUser;
+import models.user.User;
 import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -16,8 +18,9 @@ import services.recipe.RecipeCategoryService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class RecipeCategoryController extends Controller {
+public class RecipeCategoryController extends BaseController {
 
     private static Form<RecipeCategory> recipeCategoryForm;
 
@@ -96,9 +99,48 @@ public class RecipeCategoryController extends Controller {
         return ok();
     }
 
+    /**
+     * This method returns all the results that match the search sent from the client.
+     * @param query The received query parameter from the client
+     * @return The list with tuples for the categories and a boolean that indicates whether the requester follows the category.
+     */
     @Authenticate({ FreeUser.class, PremiumUser.class })
     public Result search(String query) {
+        User me = getRequester();
         final List<RecipeCategory> results = RecipeCategoryService.getInstance().search(query);
-        return ok(Json.toJson(results));
+
+        List <CategoryListQuery> mappedResults = results.stream().map(e -> {
+            if (me.getFollowedCategories().contains(e)) return new CategoryListQuery(e, true);
+            else return new CategoryListQuery(e, false);
+        }).collect(Collectors.toList());
+
+        System.out.println(Json.toJson(mappedResults));
+        return ok(Json.toJson(mappedResults));
+    }
+
+    private class CategoryListQuery {
+        RecipeCategory category;
+        boolean followed;
+
+        CategoryListQuery(RecipeCategory category, boolean followed) {
+            this.category = category;
+            this.followed = followed;
+        }
+
+        public RecipeCategory getCategory() {
+            return category;
+        }
+
+        public boolean isFollowed() {
+            return followed;
+        }
+
+        @Override
+        public String toString() {
+            return "CategoryListQuery{" +
+                    "category=" + category.getName() +
+                    ", followed=" + followed +
+                    '}';
+        }
     }
 }

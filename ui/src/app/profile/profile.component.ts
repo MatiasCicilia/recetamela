@@ -23,7 +23,7 @@ export class ProfileComponent implements OnInit {
   following: User[] = [];
   subscribed: boolean;
   categories: RecipeCategory[] = [];
-  resultCategories: RecipeCategory[] = [];
+  resultCategories: any[] = [];
   private categoryQuery: string = "";
 
 
@@ -104,8 +104,19 @@ export class ProfileComponent implements OnInit {
 
   private search() {
     if (this.categoryQuery.length == 0) return;
-    this.recipeCategoryService.searchCategories(this.categoryQuery).then((res : RecipeCategory[]) => {
+    this.recipeCategoryService.searchCategories(this.categoryQuery).then(res => {
+      console.log(res);
       this.resultCategories = res;
     });
+  }
+
+  private subscribeToCategory(id: string) {
+    console.log(id + ": subscribed");
+    this.recipeCategoryService.subscribeToCategory(id).then();
+  }
+
+  private unSubscribeToCategory(id: string) {
+    console.log(id + ": unSubscribed");
+    this.recipeCategoryService.unSubscribeToCategory(id).then();
   }
 }

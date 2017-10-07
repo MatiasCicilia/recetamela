@@ -2,14 +2,9 @@
   <ul>
     <ng-container *ngFor="let c of categories">
       <li>
-        <span *ngIf="!isSubscribedToCategory(c?.id)" (click)="subscribeToCategory(c?.id)">
-          ➕
-          {{c.name}}
-        </span>
-        <span *ngIf="isSubscribedToCategory(c?.id)" (click)="unSubscribeToCategory(c?.id)">
-          ➖
-          {{c.name}}
-        </span>
+        <span *ngIf="!c.followed; else followed">➕</span>
+        <ng-template #followed>➖</ng-template>
+        {{c.category?.name}}
       </li>
     </ng-container>
   </ul>

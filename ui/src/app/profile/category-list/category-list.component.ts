@@ -10,7 +10,7 @@ import {User} from "../../shared/models/user-model";
 })
 export class CategoryListComponent implements OnInit {
 
-  @Input() categories: RecipeCategory[];
+  @Input() categories: any[];
 
   constructor(private recipeCategoryService: RecipeCategoryService) {
   }
@@ -26,9 +26,5 @@ export class CategoryListComponent implements OnInit {
   private unSubscribeToCategory(id: string) {
     console.log(id + ": unSubscribed");
     this.recipeCategoryService.unSubscribeToCategory(id).then();
-  }
-
-  private isSubscribedToCategory(id: string) : boolean {
-    return (this.categories.map(c => c.id).indexOf(id, 0) > -1);
   }
 }
