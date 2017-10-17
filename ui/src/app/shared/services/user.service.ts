@@ -31,6 +31,7 @@ export class UserService {
       const tokenResponse = res;
       console.log('Server accepted login and opened session for userId: ' + tokenResponse.userId);
       this.auth.saveToken(tokenResponse.token);
+      this.auth.connectToWs(tokenResponse.userId);
       this.checkExpirationDate(tokenResponse.userId).then(response => {
         localStorage.setItem("user", JSON.stringify(response.user));
         this.sharedService.notifyOther({loggedIn: true});

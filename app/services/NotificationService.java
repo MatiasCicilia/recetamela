@@ -12,8 +12,12 @@ public class NotificationService extends Service<Notification> {
 
     private static NotificationService instance;
 
-    private NotificationService(Model.Finder<Long, Notification> finder){
+    public NotificationService(Model.Finder<Long, Notification> finder){
         super(finder);
+    }
+
+    public NotificationService() {
+        super(new Model.Finder<>(Notification.class));
     }
 
     public static NotificationService getInstance() {

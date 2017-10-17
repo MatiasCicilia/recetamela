@@ -21,6 +21,13 @@ export class MyAuthService {
     })
   }
 
+  public connectToWs(id: string) {
+    this.http.get(`/api/ws/notifications/${id}/`).subscribe(res => {
+      console.log('on ws response');
+      console.log(res);
+    })
+  }
+
   public requestLoggedUser(): Promise<User> {
     return this.http.get<User>('/api/auth/logged-data').toPromise();
   }

@@ -78,12 +78,16 @@ public class NotificationManager {
     public void emitToUser(User sender, Long receiverId, NotificationType name, String message, String redirectId)  {
         Notification notification = new Notification(sender.getId(), sender.getName() + " " + sender.getLastName(), receiverId, sender.getProfilePic(), name, message, redirectId);
         Queue<EventOutput> queue = events.get(receiverId);
+        if (1 == 1) {
+            System.out.println("updating for : " + receiverId);
+            controllers.notification.NotificationService.update(receiverId);
+        }
         if (queue != null) {
             EventOutput event = new EventOutput();
             event.source = Source.single(notification.toEvent());
             event.updated = true;
             queue.add(event);;
-            notification.setDelivered(true);
+            //notification.setDelivered(true);
         }
         notification.save();
     }

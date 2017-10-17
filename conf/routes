@@ -58,6 +58,7 @@ GET         /api/user/:id                           controllers.user.UserControl
 GET         /api/users                              controllers.user.UserController.getUsers
 DELETE      /api/user/:id/delete                    controllers.user.UserController.deleteUser(id: Long)
 GET         /api/notifications                      controllers.NotificationController.getNotifications
+GET         /api/ws/notifications/:id               controllers.notification.NotificationsController.socket(id: Long)
 
 POST        /api/payment/create/:creditCardId       controllers.payment.PaymentController.create(creditCardId: Long)
 PUT         /api/payment/:id/update                 controllers.payment.PaymentController.update(id: Long)
