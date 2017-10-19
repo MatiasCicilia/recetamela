@@ -1,4 +1,4 @@
-package controllers.notification
+package controllers
 
 import akka.actor._
 

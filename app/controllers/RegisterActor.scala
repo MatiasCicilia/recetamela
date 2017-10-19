@@ -1,11 +1,10 @@
-package controllers.notification
+package controllers
 
 import akka.actor.{Actor, ActorRef}
-import com.avaje.ebean.Model
 import models.notification.Notification
-import models.user.User
 import play.libs.Json
 import services.NotificationService
+
 import scala.collection.JavaConversions._
 
 
@@ -18,17 +17,22 @@ class RegisterActor extends Actor{
 
   def receive = {
 
+    /*adds user and sends all unread notifications*/
     case add_user: (Long, ActorRef) =>
       active = active + (add_user._1 -> add_user._2)
       self ! add_user._1
 
-    /*Sends notifications to given user_id*/
-    case user_id: (Long) =>
-      val notificationService = new NotificationService
-      val list = notificationService.getUndeliveredByUser(user_id)
-      println(list.map(e => e.getMessage))
+    /*Sends all unread notifications to given user_id*/
+    case user_id: Long =>
+      val list = NotificationService.getInstance().findByUser(user_id)
       for ((e: Notification) <- list) active(user_id) ! Json.toJson(e).toString
+
+    /*Sends individual notification to user_id*/
+    case tuple: (_ , Long, String) =>
+      active(tuple._2) ! tuple._3
   }
 }
+
+/*Agregar Logout, atrapar potencial exception en el ultimo case si no hay usuario en el mapa.*/
 
 

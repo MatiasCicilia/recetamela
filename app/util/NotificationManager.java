@@ -1,6 +1,7 @@
 package util;
 
 import akka.stream.javadsl.Source;
+import controllers.ScalaNotificationService;
 import models.Followers;
 import models.notification.Notification;
 import models.notification.NotificationType;
@@ -78,10 +79,7 @@ public class NotificationManager {
     public void emitToUser(User sender, Long receiverId, NotificationType name, String message, String redirectId)  {
         Notification notification = new Notification(sender.getId(), sender.getName() + " " + sender.getLastName(), receiverId, sender.getProfilePic(), name, message, redirectId);
         Queue<EventOutput> queue = events.get(receiverId);
-        if (1 == 1) {
-            System.out.println("updating for : " + receiverId);
-            controllers.notification.NotificationService.update(receiverId);
-        }
+        ScalaNotificationService.sendNotification(receiverId, notification);
         if (queue != null) {
             EventOutput event = new EventOutput();
             event.source = Source.single(notification.toEvent());
