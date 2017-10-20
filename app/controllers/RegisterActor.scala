@@ -24,7 +24,7 @@ class RegisterActor extends Actor{
 
     /*Sends all unread notifications to given user_id*/
     case user_id: Long =>
-      val list = NotificationService.getInstance().findByUser(user_id)
+      val list = NotificationService.getInstance().getUndeliveredByUser(user_id)
       for ((e: Notification) <- list) active(user_id) ! Json.toJson(e).toString
 
     /*Sends individual notification to user_id*/

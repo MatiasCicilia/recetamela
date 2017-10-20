@@ -1,12 +1,12 @@
 export class Notification {
-  id: String;
-  sender: String;
-  senderName: String;
-  senderPic: String;
-  receiver: String;
-  title: String;
-  message: String;
+  id: string;
+  sender: string;
+  senderName: string;
+  senderPic: string;
+  receiver: string;
+  title: string;
+  message: string;
   delivered: boolean;
-  time: String;
-  redirectId: String;
+  time: string;
+  redirectId: string;
 }

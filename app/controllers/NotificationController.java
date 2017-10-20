@@ -16,11 +16,7 @@ public class NotificationController extends BaseController {
     @Authenticate({FreeUser.class, PremiumUser.class})
     public Result getNotifications() {
         User sender = getRequester();
-        NotificationManager.EventOutput eventOutput = NotificationManager.getInstance().requestNotifications(sender.getId());
-        if (eventOutput == null || !eventOutput.isUpdated()) {
-            return ok();
-        }
-        return ok().chunked(eventOutput.getSource().via(EventSource.flow())).as(Http.MimeTypes.EVENT_STREAM);
+        return null;
     }
 
 }

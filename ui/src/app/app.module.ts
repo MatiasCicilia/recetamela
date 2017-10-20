@@ -59,6 +59,7 @@ import {NewsService} from "./shared/services/news-service";
 import {FacebookShareComponent} from "./facebook-share/facebook-share.component";
 import {NewsPreviewComponent} from './news/news-feed/news-preview/news-preview.component';
 import {NewsComponent} from './news/news/news.component';
+import {WebSocketService} from "./shared/services/web-socket.service";
 
 @NgModule({
   declarations: [
@@ -134,7 +135,8 @@ import {NewsComponent} from './news/news/news.component';
     PaymentService,
     RecipeBookService,
     RecipeCategoryService,
-    NewsService
+    NewsService,
+    WebSocketService
   ],
   bootstrap: [AppComponent]
 })

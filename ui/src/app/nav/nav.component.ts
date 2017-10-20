@@ -3,12 +3,11 @@ import {MyAuthService} from "../auth/my-auth-service";
 import {SharedService} from "../shared/services/shared.service";
 import {isNull} from "util";
 import {User} from "../shared/models/user-model";
-import {EventSourcePolyfill} from 'ng-event-source';
 import {Router} from '@angular/router';
-import {MessageEvent} from "../shared/models/message-event";
 import {Notification} from "../shared/models/notification";
 import {UserService} from "../shared/services/user.service";
 import {Subscription} from "rxjs";
+import {WebSocketService} from "../shared/services/web-socket.service";
 
 @Component({
   selector: 'app-nav',
@@ -21,7 +20,6 @@ export class NavComponent implements OnInit, OnDestroy {
   isLoggedIn: boolean;
   isPremium: boolean;
   user : User;
-  private eventSource : EventSourcePolyfill;
   notificationList: Notification[] = [];
   subscription: Subscription;
 
@@ -30,7 +28,8 @@ export class NavComponent implements OnInit, OnDestroy {
               private sharedService: SharedService,
               private userService: UserService,
               private cdRef: ChangeDetectorRef,
-              private router: Router,) {
+              private router: Router,
+              private wsService: WebSocketService) {
     this.isLoggedIn = !isNull(localStorage.getItem("X-TOKEN"));
     this.notificationList = this.userService.getNotifications().reverse();
     this.subscription = this.userService.getModifiedUser().subscribe(user => { this.user = user; });
@@ -40,10 +39,7 @@ export class NavComponent implements OnInit, OnDestroy {
         this.cdRef.detectChanges();
         if (this.isLoggedIn) {
           this.doUpdate();
-          this.listenForServerEvents();
-        }
-        else {
-          this.unsubscribeFromServerEvents();
+          this.listenForServerEvents((JSON.parse(localStorage.getItem("user")) as User).id);
         }
       }
       if (res.hasOwnProperty('premium')) this.updateDropdown(res.premium);
@@ -89,25 +85,19 @@ export class NavComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (this.auth.isLoggedIn()) {
       this.doUpdate();
-      this.listenForServerEvents();
+      this.listenForServerEvents((JSON.parse(localStorage.getItem("user")) as User).id);
     }
     this.user = JSON.parse(localStorage.getItem("user")) as User;
   }
 
-  private listenForServerEvents() {
-    this.eventSource = new EventSourcePolyfill('/api/notifications', { headers: { Authorization: 'Bearer' + localStorage.getItem("X-TOKEN") } });
-    this.handleEvent('SUBSCRIPTION');
-    this.handleEvent('RECIPE');
-    this.handleEvent('CATEGORY');
-    this.handleEvent('RATING');
-  }
-
-  private handleEvent(type: string) {
-    this.eventSource.addEventListener(type,(e: MessageEvent) => {
-      let notification : Notification = JSON.parse(e.data) as Notification;
+  private listenForServerEvents(id: string) {
+    this.wsService.connect(`ws://localhost:9000/api/ws/notifications/${id}`).subscribe((res) => {
+      console.log('got ws response ;) !');
+      let notification : Notification = JSON.parse(res.data) as Notification;
       this.notificationList.push(notification);
       this.userService.persistNotification(notification);
-    }, false);
+      console.log(notification);
+    });
   }
 
   notificationClicklistener(i : number) : void {
@@ -126,6 +116,7 @@ export class NavComponent implements OnInit, OnDestroy {
         this.router.navigate([`/recetas/${notification.redirectId}`]);
         break;
     }
+    this.userService.markNotificationRead(notification.id);
     this.deleteNotification(i);
     this.notificationList.reverse();
   }
@@ -135,12 +126,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.userService.deleteNotification(i);
   }
 
-  unsubscribeFromServerEvents() {
-    this.eventSource.close();
-  }
-
   ngOnDestroy(): void {
-    this.unsubscribeFromServerEvents();
     this.subscription.unsubscribe();
   }
 

@@ -23,10 +23,8 @@ import static play.mvc.Results.ok;
  */
 public class NotificationManager {
     private static NotificationManager instance;
-    private Map<Long, Queue<EventOutput>> events;
 
     private NotificationManager() {
-        events = new HashMap<>();
     }
 
     public static NotificationManager getInstance() {
@@ -34,36 +32,6 @@ public class NotificationManager {
             instance = new NotificationManager();
         }
         return instance;
-    }
-
-    public void subscribe(long userId) {
-        /* Levanto de la DB todas las notificaciones que se perdio */
-        EventOutput output = fetchMissedEvents(userId);
-        Queue<EventOutput> eventsQueue = new LinkedList<>();
-        if (output.updated) eventsQueue.add(output);
-        events.put(userId, eventsQueue);
-    }
-
-    public EventOutput requestNotifications(long userId) {
-        Queue<EventOutput> queue = events.get(userId);
-        if (queue != null && !queue.isEmpty()) {
-            return queue.poll();
-        }
-        return null;
-    }
-
-    public void unsubscribe(long userId) {
-        events.remove(userId);
-    }
-
-    /**
-     * Deprecated. Use emitToUser with redirectURI method, so client knows where to redirect user after
-     * the notification has been clicked. If no redirect URI has been specified, client will default to
-     * redirecing the user to the sender profile.
-     */
-    @Deprecated
-    public void emitToUser(User sender, Long receiverId, NotificationType name, String message)  {
-        emitToUser(sender, receiverId, name, message, "");
     }
 
     /**
@@ -78,16 +46,8 @@ public class NotificationManager {
      */
     public void emitToUser(User sender, Long receiverId, NotificationType name, String message, String redirectId)  {
         Notification notification = new Notification(sender.getId(), sender.getName() + " " + sender.getLastName(), receiverId, sender.getProfilePic(), name, message, redirectId);
-        Queue<EventOutput> queue = events.get(receiverId);
-        ScalaNotificationService.sendNotification(receiverId, notification);
-        if (queue != null) {
-            EventOutput event = new EventOutput();
-            event.source = Source.single(notification.toEvent());
-            event.updated = true;
-            queue.add(event);;
-            //notification.setDelivered(true);
-        }
         notification.save();
+        ScalaNotificationService.sendNotification(receiverId, notification);
     }
 
     public void notifyFollowers(User sender, NotificationType type, String message, String redirectId) {
@@ -112,39 +72,14 @@ public class NotificationManager {
         });
     }
 
-    private EventOutput fetchMissedEvents(long userId) {
-        List<Notification> missedEvents = NotificationService.getInstance().getUndeliveredByUser(userId);
-
-        /* Armo mi stream de eventos con las notificaciones */
-        EventOutput eventOutput = new EventOutput();
-        eventOutput.updated = !missedEvents.isEmpty();
-        eventOutput.source = Source.from(missedEvents.stream().map(Notification::toEvent).collect(Collectors.toList()));
-        missedEvents.forEach(e -> {
-            e.setDelivered(true);
-            e.update();
-        });
-        return eventOutput;
-    }
-
-    public class EventOutput {
-        private Source<EventSource.Event, ?> source;
-        private boolean updated;
-
-        public Source<EventSource.Event, ?> getSource() {
-            return source;
-        }
-
-        public void setSource(Source<EventSource.Event, ?> source) {
-            this.source = source;
-        }
-
-        public boolean isUpdated() {
-            return updated;
-        }
-
-        public void setUpdated(boolean updated) {
-            this.updated = updated;
-        }
+    /**
+     * Deprecated. Use emitToUser with redirectURI method, so client knows where to redirect user after
+     * the notification has been clicked. If no redirect URI has been specified, client will default to
+     * redirecing the user to the sender profile.
+     */
+    @Deprecated
+    public void emitToUser(User sender, Long receiverId, NotificationType name, String message)  {
+        emitToUser(sender, receiverId, name, message, "");
     }
 
 

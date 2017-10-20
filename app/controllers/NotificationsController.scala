@@ -36,6 +36,7 @@ class NotificationsController @Inject() (implicit system: ActorSystem, materiali
     */
   def notificationRead(id: Long)= {
     val notif = Option[Notification] (NotificationService.getInstance().getNullable(id))
+    println(notif)
     notif match {
       case Some(a) =>
         a.setDelivered(true)

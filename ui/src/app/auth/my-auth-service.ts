@@ -3,11 +3,15 @@ import {HttpClient} from "@angular/common/http";
 import {User} from "../shared/models/user-model";
 import {SharedService} from "../shared/services/shared.service";
 import {Router} from "@angular/router";
+import {WebSocketService} from "../shared/services/web-socket.service";
 
 @Injectable()
 export class MyAuthService {
 
-  constructor(private http: HttpClient, private sharedService: SharedService, private router: Router) {
+  constructor(private http: HttpClient,
+              private sharedService: SharedService,
+              private router: Router,
+              private wsService: WebSocketService) {
   }
 
   /* Once logged out we delete the server-signed token from our local storage */
@@ -18,13 +22,6 @@ export class MyAuthService {
       localStorage.removeItem("notifications");
       this.sharedService.notifyOther({loggedIn: false});
       this.router.navigate(['/']);
-    })
-  }
-
-  public connectToWs(id: string) {
-    this.http.get(`/api/ws/notifications/${id}/`).subscribe(res => {
-      console.log('on ws response');
-      console.log(res);
     })
   }
 
