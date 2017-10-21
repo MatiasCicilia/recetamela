@@ -92,11 +92,9 @@ export class NavComponent implements OnInit, OnDestroy {
 
   private listenForServerEvents(id: string) {
     this.wsService.connect(`ws://localhost:9000/api/ws/notifications/${id}`).subscribe((res) => {
-      console.log('got ws response ;) !');
       let notification : Notification = JSON.parse(res.data) as Notification;
       this.notificationList.push(notification);
       this.userService.persistNotification(notification);
-      console.log(notification);
     });
   }
 

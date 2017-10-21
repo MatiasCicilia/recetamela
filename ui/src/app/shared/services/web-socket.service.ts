@@ -15,6 +15,14 @@ export class WebSocketService {
     return this.socket;
   }
 
+  public send(id: string, type: string, data: string) {
+    let myMessage = new MessageEvent('message', {
+      origin : `ws://localhost:9000/api/ws/notifications/${id}`,
+      data : data
+    });
+    this.socket.next(myMessage);
+  }
+
   private create(url): Rx.Subject<MessageEvent> {
     let ws = new WebSocket(url);
     let observable = Rx.Observable.create(

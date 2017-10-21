@@ -9,6 +9,7 @@ object NotificationActor {
 class NotificationActor(out: ActorRef) extends Actor {
   def receive = {
     case msg: String =>
+      println(msg)
       out ! msg
   }
 }
