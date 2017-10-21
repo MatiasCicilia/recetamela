@@ -1,46 +1,31 @@
 import { Injectable } from '@angular/core';
-import * as Rx from 'rxjs/Rx';
+import {Observable} from "rxjs/Observable";
 
 @Injectable()
 export class WebSocketService {
 
-  private socket: Rx.Subject<MessageEvent>;
+  private socket;
 
   constructor() { }
 
-  public connect(url): Rx.Subject<MessageEvent> {
+  public connect(id: string) {
     if(!this.socket) {
-      this.socket = this.create(url);
+      this.socket = this.create(id);
     }
     return this.socket;
   }
 
-  public send(id: string, type: string, data: string) {
+  public send(data: string) {
     let myMessage = new MessageEvent('message', {
-      origin : `ws://localhost:9000/api/ws/notifications/${id}`,
       data : data
     });
-    this.socket.next(myMessage);
+    this.socket.next(JSON.stringify(myMessage.data));
   }
 
-  private create(url): Rx.Subject<MessageEvent> {
-    let ws = new WebSocket(url);
-    let observable = Rx.Observable.create(
-      (obs: Rx.Observer<MessageEvent>) => {
-        ws.onmessage = obs.next.bind(obs);
-        ws.onerror = obs.error.bind(obs);
-        ws.onclose = obs.complete.bind(obs);
-        return ws.close.bind(ws);
-      }
-    );
-    let observer = {
-      next: (data: Object) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(data));
-        }
-      },
-    };
-    return Rx.Subject.create(observer, observable);
+  private create(id: string) {
+    let subject = Observable.webSocket(`ws://localhost:9000/api/ws/notifications/${id}`).share();
+    subject.subscribe();
+    return subject;
   }
 
 }

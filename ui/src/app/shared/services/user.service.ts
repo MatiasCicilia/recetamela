@@ -20,8 +20,6 @@ export class UserService {
   private headers: HttpHeaders = new HttpHeaders({'Content-Type':'application/json'});
   private subject = new Subject<User>();
   constructor(private http:HttpClient,
-              private router: Router,
-              private toaster: ToasterService,
               private auth: MyAuthService,
               private sharedService: SharedService,
               private wsService: WebSocketService) { }
@@ -38,10 +36,7 @@ export class UserService {
       console.log('Server accepted login and opened session for userId: ' + tokenResponse.userId);
       this.auth.saveToken(tokenResponse.token);
       //this.auth.connectToWs(tokenResponse.userId);
-      this.wsService.connect(`ws://localhost:9000/api/ws/notifications/${tokenResponse.userId}`).subscribe(res => {
-        console.log('got ws response!!!');
-        console.log(res);
-      });
+      this.wsService.connect(tokenResponse.userId).subscribe();
       this.checkExpirationDate(tokenResponse.userId).then(response => {
         localStorage.setItem("user", JSON.stringify(response.user));
         this.sharedService.notifyOther({loggedIn: true});

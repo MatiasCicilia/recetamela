@@ -35,9 +35,8 @@ class NotificationsController @Inject() (implicit system: ActorSystem, materiali
     * @return A 201 status.
     */
   def notificationRead(id: Long)= {
-    val notif = Option[Notification] (NotificationService.getInstance().getNullable(id))
-    println(notif)
-    notif match {
+    val notification = Option[Notification] (NotificationService.getInstance().getNullable(id))
+    notification match {
       case Some(a) =>
         a.setDelivered(true)
         a.update()

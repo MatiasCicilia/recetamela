@@ -91,9 +91,11 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   private listenForServerEvents(id: string) {
-    this.wsService.connect(`ws://localhost:9000/api/ws/notifications/${id}`).subscribe((res) => {
-      let notification : Notification = JSON.parse(res.data) as Notification;
-      this.notificationList.push(notification);
+    this.wsService.connect(id).subscribe((res) => {
+      let notification : Notification = res;
+      if (this.notificationList.map(e => e.id).indexOf(notification.id) == -1) {
+        this.notificationList.push(notification);
+      }
       this.userService.persistNotification(notification);
     });
   }
